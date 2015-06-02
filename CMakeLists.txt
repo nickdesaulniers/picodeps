@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 include_directories(include json/src)
 
 # Create libpetablocks.a
-add_library(petablocks STATIC lib/petablocks.cpp json/src/json.hpp
-  lib/dependency.cpp lib/tarball.cpp)
+file(GLOB sources lib/*.cpp)
+add_library(petablocks STATIC ${sources})
 
 # Dependencies
 function(statically_link lib_name link_path include_path)
