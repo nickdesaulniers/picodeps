@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-include_directories(include json/src)
+include_directories(include build/deps/json/src)
 
 # Create libpetablocks.a
 file(GLOB sources lib/*.cpp)

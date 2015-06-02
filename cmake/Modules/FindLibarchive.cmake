@@ -7,8 +7,8 @@
 # I build libarchive with:
 # ../configure --without-zlib --without-bz2lib --without-lzmadec --without-iconv --without-lzma --without-lzo2 --without-nettle --without-openssl --without-xml2
 
-FIND_PATH(LIBARCHIVE_INCLUDE_DIR archive.h PATHS libarchive-3.1.2/libarchive)
-FIND_LIBRARY(LIBARCHIVE_LIBRARIES NAMES libarchive.a PATHS libarchive-3.1.2/build/.libs)
+FIND_PATH(LIBARCHIVE_INCLUDE_DIR archive.h PATHS build/deps/libarchive-3.1.2/libarchive)
+FIND_LIBRARY(LIBARCHIVE_LIBRARIES NAMES libarchive.a PATHS build/deps/libarchive-3.1.2/build/.libs)
 
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(LIBARCHIVE DEFAULT_MSG LIBARCHIVE_LIBRARIES LIBARCHIVE_INCLUDE_DIR)
