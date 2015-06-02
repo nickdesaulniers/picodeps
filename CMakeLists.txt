@@ -1,25 +1,27 @@
 cmake_minimum_required(VERSION 3.0)
-include_directories(include json/src curl-7.42.1 libarchive-3.1.2/libarchive)
+include_directories(include json/src)
+
 # Create libpetablocks.a
 add_library(petablocks STATIC lib/petablocks.cpp json/src/json.hpp
   lib/dependency.cpp lib/tarball.cpp)
-# Create petablocks
-add_executable(petablocks_exe bin/petablocks.cpp)
+
 # Dependencies
+function(statically_link lib_name link_path include_path)
+  find_library(my_${lib_name} NAMES lib${lib_name}.a PATHS ${link_path})
+  message(${my_${lib_name}})
+  add_library(${lib_name} STATIC IMPORTED)
+  set_target_properties(${lib_name} PROPERTIES IMPORTED_LOCATION ${my_${lib_name}})
+  include_directories(${include_path})
+endfunction()
 ## I build curl with:
 ## ../configure --without-ssl --disable-shared --without-zlib --without-libidn --disable-ldap
-find_library(my_curl NAMES libcurl.a PATHS "curl-7.42.1/build/lib/.libs/")
-message(${my_curl})
-add_library(curl STATIC IMPORTED)
-set_target_properties(curl PROPERTIES IMPORTED_LOCATION ${my_curl})
-
 ## I build libarchive with:
 ## ../configure --without-zlib --without-bz2lib --without-lzmadec --without-iconv --without-lzma --without-lzo2 --without-nettle --without-openssl --without-xml2
-find_library(my_archive NAMES libarchive.a PATHS "libarchive-3.1.2/build/.libs/")
-add_library(archive STATIC IMPORTED)
-set_target_properties(archive PROPERTIES IMPORTED_LOCATION ${my_archive})
-message(${my_archive})
+statically_link(curl curl-7.42.1/build/lib/.libs curl-7.42.1)
+statically_link(archive libarchive-3.1.2/build/.libs libarchive-3.1.2/libarchive)
 
+# Create petablocks
+add_executable(petablocks_exe bin/petablocks.cpp)
 target_link_libraries(petablocks_exe petablocks curl archive)
 set_target_properties(petablocks_exe PROPERTIES OUTPUT_NAME "petablocks")
 # Compiler flags
