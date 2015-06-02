@@ -28,25 +28,28 @@ static int copy_data (archive *ar, struct archive *aw) {
   }
 }
 
+static void rewrite_subdir (archive_entry* entry, const std::string& dirname) {
+  const auto old_path = std::string { archive_entry_pathname(entry) };
+  const auto new_path = dirname + "/" + old_path;
+  archive_entry_set_pathname(entry, new_path.c_str());
+}
+
 int Tarball::install () {
-  archive *a;
-  archive *ext;
   archive_entry *entry;
   int r;
 
-  /* Select which attributes we want to restore. */
-  int flags = ARCHIVE_EXTRACT_TIME;
-  flags |= ARCHIVE_EXTRACT_PERM;
-  flags |= ARCHIVE_EXTRACT_ACL;
-  flags |= ARCHIVE_EXTRACT_FFLAGS;
-
-  a = archive_read_new();
+  archive* a = archive_read_new();
   archive_read_support_format_all(a);
   archive_read_support_filter_all(a);
-  ext = archive_write_disk_new();
+
+  archive* ext = archive_write_disk_new();
+  const int flags = ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM |
+    ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_FFLAGS;
   archive_write_disk_set_options(ext, flags);
   archive_write_disk_set_standard_lookup(ext);
-  std::string filename = "deps/" + basename(this->location);
+
+  const std::string subdir = "deps";
+  const std::string filename = subdir + "/" + basename(this->location);
   printf("opening %s\n", filename.c_str());
   if ((r = archive_read_open_filename(a,filename.c_str(), 10240))) {
     fprintf(stderr, "Error opening archive:\n%s\n", archive_error_string(a));
@@ -63,6 +66,7 @@ int Tarball::install () {
     if (r < ARCHIVE_WARN) {
       return -1;
     }
+    rewrite_subdir(entry, subdir);
     r = archive_write_header(ext, entry);
     if (r < ARCHIVE_OK) {
       fprintf(stderr, "%s\n", archive_error_string(ext));
