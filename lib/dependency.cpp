@@ -19,6 +19,7 @@ int Dependency::download() {
   if (curl && file) {
     curl_easy_setopt(curl, CURLOPT_URL, this->location.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
     curl_easy_perform(curl);
     long response_code = 0;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
