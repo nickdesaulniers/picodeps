@@ -2,11 +2,11 @@
 #include <fstream>
 #include <list>
 #include "dependency.h"
-#include "petablocks.h"
+#include "picodeps.h"
 
 int main (int argc, char** argv) {
   if (argc < 2) {
-    std::cerr << "usage: ./petablocks <inputfile>" << std::endl;
+    std::cerr << "usage: ./picodeps <inputfile>" << std::endl;
     exit(1);
   }
 

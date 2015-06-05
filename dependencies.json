@@ -1,5 +1,5 @@
 {
-  "name": "petablocks",
+  "name": "picodeps",
   "dependencies": {
     "json": "http://github.com/nlohmann/json/archive/master.zip",
     "libressl": "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz",
