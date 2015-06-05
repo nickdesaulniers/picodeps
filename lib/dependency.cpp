@@ -34,13 +34,15 @@ int Dependency::download() {
     curl_easy_setopt(curl, CURLOPT_URL, this->location.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_perform(curl);
+    fclose(file);
     long response_code = 0;
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
     std::cout << "response code: " << response_code << std::endl;
-    fclose(file);
     curl_easy_cleanup(curl);
-    return 0;
+    // on a non 200, we should rm the file, but could be used for malice
+    return response_code == 200 ? 0 : -1;
   } else {
     std::cerr << "error downloading: " << this->location << std::endl;
     return -1;

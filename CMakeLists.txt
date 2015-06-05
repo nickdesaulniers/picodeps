@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
+project(picodeps CXX)
 
-include_directories(include build/deps/json/src)
+include_directories(include build/deps/json-master/src)
 
 # Create libpicodeps.a
 file(GLOB sources lib/*.cpp)
@@ -25,5 +26,5 @@ endforeach()
 target_link_libraries(picodeps_exe picodeps)
 set_target_properties(picodeps_exe PROPERTIES OUTPUT_NAME "picodeps")
 # Compiler flags
-add_definitions(-Wall -Wextra --std=c++11 -g)
+set(CMAKE_CXX_FLAGS "-Wall -Wextra --std=c++11 -g")
 

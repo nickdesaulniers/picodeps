@@ -1,7 +1,7 @@
 {
   "name": "picodeps",
   "dependencies": {
-    "json": "http://github.com/nlohmann/json/archive/master.zip",
+    "json": "https://github.com/nlohmann/json/archive/master.tar.gz",
     "libressl": "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz",
     "curl": "http://curl.haxx.se/download/curl-7.42.1.tar.gz",
     "archive": "http://libarchive.org/downloads/libarchive-3.1.2.tar.gz"

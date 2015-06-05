@@ -5,7 +5,6 @@ cd build/deps
 curl -L https://github.com/nlohmann/json/archive/master.zip -O
 unzip master.zip
 rm master.zip
-mv json-master json
 
 # libressl
 # openssl is insane, do not use, prefer libressl
