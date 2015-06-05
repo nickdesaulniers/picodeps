@@ -1,3 +1,4 @@
+#include <string>
 #include "archive.h"
 #include "archive_entry.h"
 #include "tarball.h"
@@ -50,7 +51,7 @@ int Tarball::install () {
 
   const std::string subdir = "deps";
   const std::string filename = subdir + "/" + basename(this->location);
-  printf("opening %s\n", filename.c_str());
+  printf("Unpacking archive %s\n", filename.c_str());
   if ((r = archive_read_open_filename(a,filename.c_str(), 10240))) {
     fprintf(stderr, "Error opening archive:\n%s\n", archive_error_string(a));
     return -1;

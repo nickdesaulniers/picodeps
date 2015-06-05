@@ -1,43 +1,39 @@
 #include <iostream>
-#include <regex>
+#include <list>
+#include <memory>
 #include <sys/stat.h>
 #include "json.hpp"
 #include "tarball.h"
 
 using json = nlohmann::json;
 
-void parse_dependency (const std::string& dependency) {
-  if (std::regex_search(dependency, std::regex { "\\.tar\\.gz$" })) {
-    std::cout << "^ tar file" << std::endl;
-    Tarball t { dependency };
-    t.download();
-    t.install();
-  }
-}
-
-int make_directory (const std::string& path) {
+static int make_directory (const std::string& path) {
   return mkdir(path.c_str(), 0755) && errno != EEXIST;
 };
 
-void parse_manifest (std::istream& manifest) {
+static bool ends_with (const std::string& full_string, const std::string& suffix) {
+  if (full_string.length() < suffix.length()) {
+    return false;
+  } else {
+    return full_string.compare(full_string.length() - suffix.length(), suffix.length(), suffix) == 0;
+  }
+}
+
+std::list<std::shared_ptr<Dependency>> parse_manifest (std::istream& manifest) {
   json j;
   j << manifest;
-  //std::cout << manifest.dump(2) << std::endl;
 
   json deps = j["dependencies"];
   if (deps.is_null()) {
-    std::cerr << "no key dependencies" << std::endl;
-    return;
+    throw "no key dependencies";
   }
 
-  std::cout << "making deps dir" << std::endl;
   if(make_directory("deps") != 0) {
-    std::cerr << "error making deps" << std::endl;
     perror("deps");
-    return;
+    throw "error making deps dir";
   };
 
-  std::cout << "iterating dependencies" << std::endl;
+  std::list<std::shared_ptr<Dependency>> dependencies;
   for (auto it = deps.cbegin(); it != deps.cend(); ++it) {
     std::cout << it.key() << " | " << it.value() << std::endl;
 
@@ -46,7 +42,11 @@ void parse_manifest (std::istream& manifest) {
       continue;
     }
 
-    parse_dependency(it.value().get<std::string>());
+    auto value = it.value().get<std::string>();
+    if (ends_with(value, ".tar.gz")) {
+      dependencies.push_back(std::make_shared<Tarball>(value));
+    }
   }
+  return dependencies;
 }
 

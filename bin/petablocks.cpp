@@ -1,7 +1,8 @@
 #include <iostream>
 #include <fstream>
+#include <list>
+#include "dependency.h"
 #include "petablocks.h"
-#include "curl/curl.h"
 
 int main (int argc, char** argv) {
   if (argc < 2) {
@@ -15,6 +16,10 @@ int main (int argc, char** argv) {
     exit(1);
   }
 
-  parse_manifest(f);
+  auto dependencies = parse_manifest(f);
+  for (auto dependency : dependencies) {
+    dependency->download();
+    dependency->install();
+  }
 }
 

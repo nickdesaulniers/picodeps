@@ -1,4 +1,3 @@
-#include <string>
 class Dependency {
   FILE* save_file (const std::string& filename);
 protected:
@@ -7,5 +6,6 @@ protected:
 public:
   virtual int install () = 0;
   int download ();
+  virtual ~Dependency ();
 };
 

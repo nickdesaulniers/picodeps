@@ -14,6 +14,7 @@ std::string Dependency::basename (const std::string& path) {
 
 int Dependency::download() {
   CURL* curl = curl_easy_init();
+  std::cout << "Downloading " << this->location << std::endl;
   std::string base_name = basename(this->location);
   FILE* file = save_file(("deps/" + base_name).c_str());
   if (curl && file) {
@@ -31,3 +32,6 @@ int Dependency::download() {
   }
   return 0;
 }
+
+Dependency::~Dependency () {};
+
