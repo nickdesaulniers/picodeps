@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unistd.h>
 #include "curl/curl.h"
 #include "dependency.h"
 
@@ -12,11 +13,23 @@ std::string Dependency::basename (const std::string& path) {
   }).base(), path.end());
 }
 
+// TOCTOU ?
+bool Dependency::downloaded (const std::string& filename) {
+  return access(filename.c_str(), F_OK) != -1;
+}
+
 int Dependency::download() {
-  CURL* curl = curl_easy_init();
+  std::string save_as = "deps/" + basename(this->location);
+
+  if (downloaded(save_as)) {
+    std::cout << "Already have " << save_as << " downloaded" << std::endl;
+    return 0;
+  }
+
+  FILE* file = save_file(save_as.c_str());
   std::cout << "Downloading " << this->location << std::endl;
-  std::string base_name = basename(this->location);
-  FILE* file = save_file(("deps/" + base_name).c_str());
+
+  CURL* curl = curl_easy_init();
   if (curl && file) {
     curl_easy_setopt(curl, CURLOPT_URL, this->location.c_str());
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, file);
@@ -27,10 +40,11 @@ int Dependency::download() {
     std::cout << "response code: " << response_code << std::endl;
     fclose(file);
     curl_easy_cleanup(curl);
+    return 0;
   } else {
     std::cerr << "error downloading: " << this->location << std::endl;
+    return -1;
   }
-  return 0;
 }
 
 Dependency::~Dependency () {};

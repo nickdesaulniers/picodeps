@@ -6,6 +6,7 @@ protected:
 public:
   virtual int install () = 0;
   int download ();
+  bool downloaded (const std::string& path);
   virtual ~Dependency ();
 };
 
