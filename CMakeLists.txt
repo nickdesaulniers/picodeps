@@ -32,23 +32,26 @@ ExternalProject_Add(project_libressl
   CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
   BINARY_DIR deps/libressl-2.1.6/build
   INSTALL_DIR deps/libressl-2.1.6/build
-  )
+)
 add_dependencies(picodeps_exe project_libressl)
 ExternalProject_Get_Property(project_libressl INSTALL_DIR)
 target_link_libraries(picodeps_exe ${INSTALL_DIR}/lib/libcrypto.a ${INSTALL_DIR}/lib/libssl.a)
 
-# Dependencies
-# http://www.cmake.org/Wiki/CMake:How_To_Find_Libraries#Using_external_libraries_that_CMake_doesn.27t_yet_have_modules_for
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-foreach(dependency curl)
-  find_package(Lib${dependency} REQUIRED)
-  if(NOT ${Lib${dependency}})
-    message("Did you remember to run the bootstrap script?")
-  endif()
-  string(TOUPPER ${dependency} DEPENDENCY)
-  include_directories(${LIB${DEPENDENCY}_INCLUDE_DIR})
-  target_link_libraries(picodeps_exe picodeps ${LIB${DEPENDENCY}_LIBRARIES})
-endforeach()
+# Libcurl
+# TODO: Get this to build in the prefix dir
+set(libressl_install_dir ${INSTALL_DIR})
+message("${libressl_install_dir}") #
+ExternalProject_Add(project_libcurl
+  DEPENDS project_libressl
+  PREFIX deps/curl-7.42.1
+  URL http://curl.haxx.se/download/curl-7.42.1.tar.gz
+  CONFIGURE_COMMAND env PKG_CONFIG_PATH=${libressl_install_dir} <SOURCE_DIR>/configure --disable-shared --without-zlib --without-libidn --disable-ldap
+  BINARY_DIR deps/curl-7.42.1/build
+  INSTALL_DIR deps/curl-7.42.1/build
+)
+add_dependencies(picodeps_exe project_libcurl)
+ExternalProject_Get_Property(project_libcurl INSTALL_DIR)
+target_link_libraries(picodeps_exe ${INSTALL_DIR}/lib/libcurl.a)
 
 target_link_libraries(picodeps_exe picodeps)
 set_target_properties(picodeps_exe PROPERTIES OUTPUT_NAME "picodeps")
