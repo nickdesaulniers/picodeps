@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
+include(ExternalProject)
 project(picodeps CXX)
 
 include_directories(include build/deps/json-master/src)
@@ -10,8 +11,8 @@ add_library(picodeps STATIC ${sources})
 # Create picodeps
 add_executable(picodeps_exe bin/picodeps.cpp)
 
+# Libarchive
 # TODO: libarchive actually has a CMakeLists.txt, use that
-include(ExternalProject)
 ExternalProject_Add(project_archive
   PREFIX deps/libarchive-3.1.2
   URL http://libarchive.org/downloads/libarchive-3.1.2.tar.gz
@@ -23,10 +24,23 @@ add_dependencies(picodeps_exe project_archive)
 ExternalProject_Get_Property(project_archive INSTALL_DIR)
 target_link_libraries(picodeps_exe ${INSTALL_DIR}/lib/libarchive.a)
 
+# Libressl
+# TODO: don't need to build command line utilties
+ExternalProject_Add(project_libressl
+  PREFIX deps/libressl-2.1.6
+  URL http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-2.1.6.tar.gz
+  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+  BINARY_DIR deps/libressl-2.1.6/build
+  INSTALL_DIR deps/libressl-2.1.6/build
+  )
+add_dependencies(picodeps_exe project_libressl)
+ExternalProject_Get_Property(project_libressl INSTALL_DIR)
+target_link_libraries(picodeps_exe ${INSTALL_DIR}/lib/libcrypto.a ${INSTALL_DIR}/lib/libssl.a)
+
 # Dependencies
 # http://www.cmake.org/Wiki/CMake:How_To_Find_Libraries#Using_external_libraries_that_CMake_doesn.27t_yet_have_modules_for
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
-foreach(dependency curl crypto ssl)
+foreach(dependency curl)
   find_package(Lib${dependency} REQUIRED)
   if(NOT ${Lib${dependency}})
     message("Did you remember to run the bootstrap script?")
